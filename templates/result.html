@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Diagnosis Result</h2>
+<p>Predicted Disease: <strong>{{ disease }}</strong></p>
+<p>Confidence Score: <strong>{{ "{:.2%}".format(confidence) }}</strong></p>
+
+<h3>Explainability: Model Focus Areas</h3>
+<img src="{{ url_for('uploaded_file', filename=heatmap) }}" class="img-fluid" alt="Grad-CAM Heatmap">
+
+<div class="mt-3">
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Back to Dashboard</a>
+</div>
+{% endblock %}

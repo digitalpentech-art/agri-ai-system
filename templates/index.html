@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Farmer Dashboard</h2>
+        <p>Welcome back, {{ current_user.full_name }}!</p>
+        <a href="{{ url_for('main.upload_diagnosis') }}" class="btn btn-success mb-3">Diagnose New Crop Disease</a>
+        
+        <h3>Diagnosis History</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Disease</th>
+                    <th>Confidence</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for diagnosis in diagnoses %}
+                <tr>
+                    <td>{{ diagnosis.diagnosis_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ diagnosis.predicted_disease }}</td>
+                    <td>{{ "{:.2%}".format(diagnosis.confidence_score) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

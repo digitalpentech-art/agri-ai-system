@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Upload Crop Image for Diagnosis</h2>
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    {{ form.image.label }} {{ form.image(class="form-control") }}
+    {{ form.submit(class="btn btn-primary mt-2") }}
+</form>
+{% endblock %}
