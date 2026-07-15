@@ -46,6 +46,9 @@ def train_model():
 
     num_classes = len(train_generator.class_indices)
     
+    # Ensure save directory exists
+    os.makedirs(os.path.dirname(MODEL_SAVE_PATH), exist_ok=True)
+    
     # Save classes for prediction mapping
     with open(CLASSES_SAVE_PATH, 'w') as f:
         json.dump(train_generator.class_indices, f)
