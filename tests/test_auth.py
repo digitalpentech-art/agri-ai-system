@@ -1,5 +1,5 @@
 import unittest
-from app import create_app, db
+from factory import create_app, db
 from models.models import User
 
 class AuthTestCase(unittest.TestCase):

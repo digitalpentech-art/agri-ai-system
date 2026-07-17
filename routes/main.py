@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 from flask_login import login_required, current_user
 import os
 from werkzeug.utils import secure_filename
-from app import db, Config
+from factory import db, Config
 from models.models import Diagnosis, Crop
 from models.predictor import DiseasePredictor
 from forms import DiagnosisForm

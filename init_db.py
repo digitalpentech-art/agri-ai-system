@@ -1,4 +1,4 @@
-from app import create_app, db
+from factory import create_app, db
 from models.models import User, Crop, Disease, Diagnosis, AgriInfo
 
 app = create_app()

@@ -4,7 +4,7 @@ from PIL import Image
 import os
 import json
 import cv2
-from app import Config
+from factory import Config
 
 class DiseasePredictor:
     def __init__(self, model_path, classes_path):
