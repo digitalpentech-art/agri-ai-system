@@ -3,14 +3,17 @@ from flask_login import login_required, current_user
 import os
 from werkzeug.utils import secure_filename
 from app import db, Config
-from models.models import Diagnosis
+from models.models import Diagnosis, Crop
 from models.predictor import DiseasePredictor
 from forms import DiagnosisForm
 
 main = Blueprint('main', __name__)
 # Assume classes.json is in the same directory as the model
 classes_path = os.path.join(os.path.dirname(Config.MODEL_PATH), 'classes.json')
-predictor = DiseasePredictor(Config.MODEL_PATH, classes_path)
+if os.path.exists(Config.MODEL_PATH):
+    predictor = DiseasePredictor(Config.MODEL_PATH, classes_path)
+else:
+    predictor = None
 
 @main.route('/')
 @login_required
@@ -22,7 +25,13 @@ def index():
 @login_required
 def upload_diagnosis():
     form = DiagnosisForm()
+    form.crop.choices = [(c.crop_id, c.crop_name) for c in Crop.query.all()]
+    
     if form.validate_on_submit():
+        if not predictor:
+            flash('Model not found. Please contact administrator.')
+            return redirect(url_for('main.upload_diagnosis'))
+            
         file = form.image.data
         filename = secure_filename(file.filename)
         upload_path = os.path.join(Config.UPLOAD_FOLDER, filename)
@@ -31,7 +40,7 @@ def upload_diagnosis():
         # Use the real model prediction and get heatmap
         predicted_disease, confidence, heatmap_filename = predictor.predict(upload_path)
         
-        diagnosis = Diagnosis(user_id=current_user.id, crop_id=1, image_path=filename,
+        diagnosis = Diagnosis(user_id=current_user.id, crop_id=form.crop.data, image_path=filename,
                               predicted_disease=predicted_disease, confidence_score=confidence)
         db.session.add(diagnosis)
         db.session.commit()

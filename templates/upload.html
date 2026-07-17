@@ -4,6 +4,7 @@
 <form method="POST" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
     {{ form.image.label }} {{ form.image(class="form-control") }}
+    {{ form.crop.label }} {{ form.crop(class="form-control") }}
     {{ form.submit(class="btn btn-primary mt-2") }}
 </form>
 {% endblock %}
