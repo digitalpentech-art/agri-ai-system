@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: agri-ai-system
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "gunicorn run:app"
+    envVars:
+      - key: FLASK_APP
+        value: run.py
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        value: sqlite:///database/agri_ai.db
+    # Render's ephemeral filesystem means SQLite files in /database/ might be lost.
+    # For a production app, a managed PostgreSQL database is recommended.
+    # For this prototype, keep it simple.
+    preDeployCommand: "python init_db.py"
