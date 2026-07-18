@@ -19,6 +19,19 @@ def create_app(config_class=Config):
     db.init_app(app)
     login_manager.init_app(app)
 
+    # Automatically create tables and seed initial data
+    from models.models import Crop
+    with app.app_context():
+        db.create_all()
+        if not Crop.query.first():
+            crops = [
+                Crop(crop_name='Pepper'),
+                Crop(crop_name='Potato'),
+                Crop(crop_name='Tomato')
+            ]
+            db.session.add_all(crops)
+            db.session.commit()
+
     from routes.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
     
