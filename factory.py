@@ -20,9 +20,11 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
 
     # Automatically create tables and seed initial data
-    from models.models import Crop
+    from models.models import Crop, User
+    from werkzeug.security import generate_password_hash
     with app.app_context():
         db.create_all()
+        # Seed Crops
         if not Crop.query.first():
             crops = [
                 Crop(crop_name='Pepper'),
@@ -30,6 +32,17 @@ def create_app(config_class=Config):
                 Crop(crop_name='Tomato')
             ]
             db.session.add_all(crops)
+            db.session.commit()
+        # Seed Admin User
+        if not User.query.filter_by(role='admin').first():
+            admin = User(
+                full_name='Administrator',
+                email='admin@agriai.com',
+                phone='0000000000',
+                password_hash=generate_password_hash('adminpassword'),
+                role='admin'
+            )
+            db.session.add(admin)
             db.session.commit()
 
     from routes.auth import auth as auth_blueprint
