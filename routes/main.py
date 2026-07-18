@@ -16,13 +16,11 @@ else:
     predictor = None
 
 @main.route('/')
-@login_required
 def index():
-    diagnoses = Diagnosis.query.filter_by(user_id=current_user.id).order_by(Diagnosis.diagnosis_date.desc()).all()
-    return render_template('index.html', diagnoses=diagnoses)
+    # Temporary bypass: redirect to upload to test core functionality directly
+    return redirect(url_for('main.upload_diagnosis'))
 
 @main.route('/upload', methods=['GET', 'POST'])
-@login_required
 def upload_diagnosis():
     form = DiagnosisForm()
     form.crop.choices = [(c.crop_id, c.crop_name) for c in Crop.query.all()]
