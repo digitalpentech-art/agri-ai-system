@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>My Dashboard</h2>
+    <form action="{{ url_for('main.clear_history') }}" method="POST">
+        {{ clear_form.hidden_tag() }}
+        {{ clear_form.submit(class="btn btn-danger") }}
+    </form>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mb-4">
+        <div class="card p-3">
+            <h5>Total Diagnoses</h5>
+            <h3>{{ total }}</h3>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card p-3">
+            <h5>Avg Confidence</h5>
+            <h3>{{ confidence }}%</h3>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 mb-4">
+        <div class="card p-3">
+            <h5>Disease Distribution</h5>
+            <canvas id="diseaseChart"></canvas>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card p-3">
+            <h5>Recent Activity</h5>
+            <table class="table table-sm">
+                <thead>
+                    <tr>
+                        <th>Disease</th>
+                        <th>Conf.</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in recent %}
+                    <tr>
+                        <td>{{ d.predicted_disease }}</td>
+                        <td>{{ (d.confidence_score * 100)|round(1) }}%</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const ctx = document.getElementById('diseaseChart').getContext('2d');
+    const diseaseData = {
+        labels: [{% for d in disease_dist %}"{{ d[0] }}",{% endfor %}],
+        datasets: [{
+            label: 'Diagnoses',
+            data: [{% for d in disease_dist %}{{ d[1] }},{% endfor %}],
+            backgroundColor: ['#2e7d32', '#66bb6a', '#a5d6a7']
+        }]
+    };
+    new Chart(ctx, { type: 'bar', data: diseaseData });
+</script>
+{% endblock %}

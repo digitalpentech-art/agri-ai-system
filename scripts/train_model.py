@@ -72,7 +72,7 @@ def train_model():
     model.fit(
         train_generator,
         validation_data=validation_generator,
-        epochs=10
+        epochs=1
     )
     
     model.save(MODEL_SAVE_PATH)

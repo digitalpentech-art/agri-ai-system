@@ -23,3 +23,6 @@ class DiagnosisForm(FlaskForm):
     ])
     crop = SelectField('Select Crop', coerce=int, validators=[DataRequired()])
     submit = SubmitField('Diagnose')
+
+class ClearHistoryForm(FlaskForm):
+    submit = SubmitField('Clear History')

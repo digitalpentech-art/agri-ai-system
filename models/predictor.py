@@ -1,4 +1,7 @@
 import tensorflow as tf
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
+from tensorflow.keras.models import Model
 import numpy as np
 from PIL import Image
 import os
@@ -8,14 +11,32 @@ from factory import Config
 
 class DiseasePredictor:
     def __init__(self, model_path, classes_path):
-        self.model = tf.keras.models.load_model(model_path)
-        with open(classes_path, 'r') as f:
-            self.class_indices = json.load(f)
-        self.classes = {v: k for k, v in self.class_indices.items()}
-        # Identify the last convolutional layer
-        self.last_conv_layer = 'out_relu' # For MobileNetV2
+        try:
+            with open(classes_path, 'r') as f:
+                self.class_indices = json.load(f)
+            self.classes = {v: k for k, v in self.class_indices.items()}
+            num_classes = len(self.classes)
+            
+            # Manually construct architecture
+            base_model = MobileNetV2(weights=None, include_top=False, input_shape=(224, 224, 3))
+            x = base_model.output
+            x = GlobalAveragePooling2D()(x)
+            x = Dropout(0.2)(x)
+            predictions = Dense(num_classes, activation='softmax')(x)
+            self.model = Model(inputs=base_model.input, outputs=predictions)
+            
+            # Load weights
+            self.model.load_weights(model_path)
+            
+            # Identify the last convolutional layer (MobileNetV2 specific)
+            self.last_conv_layer = 'out_relu'
+        except Exception as e:
+            print(f"Warning: Failed to load model: {e}")
+            self.model = None
 
     def predict(self, image_path):
+        if not self.model:
+            raise RuntimeError("Model is not loaded.")
         img = Image.open(image_path).resize((224, 224))
         img_array = np.array(img) / 255.0
         img_array = np.expand_dims(img_array, axis=0)
