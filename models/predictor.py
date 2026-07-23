@@ -4,7 +4,20 @@ from factory import Config
 
 class DiseasePredictor:
     def __init__(self, model_path, classes_path):
+        self.model_path = model_path
+        self.classes_path = classes_path
         self.model = None
+        self.tf = None
+        self.np = None
+        self.Image = None
+        self.cv2 = None
+        self.classes = {}
+
+    def _load_model(self):
+        """Lazy load the model and dependencies."""
+        if self.model is not None:
+            return
+
         try:
             import tensorflow as tf
             from tensorflow.keras.applications import MobileNetV2
@@ -19,7 +32,7 @@ class DiseasePredictor:
             self.cv2 = cv2
             self.tf = tf
             
-            with open(classes_path, 'r') as f:
+            with open(self.classes_path, 'r') as f:
                 self.class_indices = json.load(f)
             self.classes = {v: k for k, v in self.class_indices.items()}
             num_classes = len(self.classes)
@@ -33,17 +46,16 @@ class DiseasePredictor:
             self.model = Model(inputs=base_model.input, outputs=predictions)
             
             # Load weights
-            self.model.load_weights(model_path)
+            self.model.load_weights(self.model_path)
             
             # Identify the last convolutional layer (MobileNetV2 specific)
             self.last_conv_layer = 'out_relu'
-        except ImportError:
-            print("Warning: Prediction libraries (tensorflow/numpy/cv2) not installed.")
         except Exception as e:
             print(f"Warning: Failed to load model: {e}")
-            self.model = None
+            self.model = False # Mark as failed to avoid retries
             
     def predict(self, image_path):
+        self._load_model()
         if not self.model:
             return "Error: Predictor not loaded", 0.0, ""
         
@@ -60,6 +72,7 @@ class DiseasePredictor:
         return self.classes[predicted_index], float(confidence), heatmap_path
 
     def generate_heatmap(self, img_array, class_index, original_path):
+        self._load_model()
         if not self.model:
             return ""
         
