@@ -3,7 +3,7 @@ services:
     name: agri-ai-system
     runtime: python
     buildCommand: "apt-get update && apt-get install -y libjpeg-dev zlib1g-dev && pip install --upgrade pip setuptools wheel && pip install -r requirements.txt"
-    preDeployCommand: "mkdir -p database && flask db upgrade && python seed_crops.py && python seed_admin.py"
+    preDeployCommand: "mkdir -p database && export DATABASE_URL=sqlite:///database/agri_ai.db && flask db upgrade && python seed_crops.py && python seed_admin.py"
     startCommand: "gunicorn --bind 0.0.0.0:$PORT run:app"
     envVars:
       - key: PYTHON_VERSION
