@@ -1,7 +1,7 @@
-import tensorflow as tf
-from tensorflow.keras.applications import MobileNetV2
-from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
-from tensorflow.keras.models import Model
+# import tensorflow as tf
+# from tensorflow.keras.applications import MobileNetV2
+# from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
+# from tensorflow.keras.models import Model
 import numpy as np
 from PIL import Image
 import os
@@ -11,6 +11,10 @@ from factory import Config
 
 class DiseasePredictor:
     def __init__(self, model_path, classes_path):
+        import tensorflow as tf
+        from tensorflow.keras.applications import MobileNetV2
+        from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
+        from tensorflow.keras.models import Model
         try:
             with open(classes_path, 'r') as f:
                 self.class_indices = json.load(f)
@@ -50,6 +54,7 @@ class DiseasePredictor:
         return self.classes[predicted_index], float(confidence), heatmap_path
 
     def generate_heatmap(self, img_array, class_index, original_path):
+        import tensorflow as tf
         grad_model = tf.keras.models.Model(
             [self.model.inputs], [self.model.get_layer(self.last_conv_layer).output, self.model.output]
         )
