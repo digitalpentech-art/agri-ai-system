@@ -9,12 +9,17 @@ from forms import DiagnosisForm, ClearHistoryForm
 from sqlalchemy import func
 
 main = Blueprint('main', __name__)
-# Assume classes.json is in the same directory as the model
-classes_path = os.path.join(os.path.dirname(Config.MODEL_PATH), 'classes.json')
-if os.path.exists(Config.MODEL_PATH):
-    predictor = DiseasePredictor(Config.MODEL_PATH, classes_path)
-else:
-    predictor = None
+
+# Initialize predictor as None, instantiate lazily
+_predictor = None
+
+def get_predictor():
+    global _predictor
+    if _predictor is None:
+        classes_path = os.path.join(os.path.dirname(Config.MODEL_PATH), 'classes.json')
+        if os.path.exists(Config.MODEL_PATH):
+            _predictor = DiseasePredictor(Config.MODEL_PATH, classes_path)
+    return _predictor
 
 @main.route('/')
 def index():
@@ -57,6 +62,7 @@ def upload_diagnosis():
     form.crop.choices = [(c.crop_id, c.crop_name) for c in Crop.query.all()]
     
     if form.validate_on_submit():
+        predictor = get_predictor()
         if not predictor:
             flash('Model not found. Please contact administrator.')
             return redirect(url_for('main.upload_diagnosis'))
