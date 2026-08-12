@@ -11,3 +11,4 @@ pandas>=2.2.3
 email-validator==2.1.0.post1
 gunicorn==21.2.0
 tensorflow==2.16.1
+scikit-learn==1.5.0

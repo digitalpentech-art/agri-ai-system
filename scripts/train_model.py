@@ -4,8 +4,11 @@ from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
 from tensorflow.keras.models import Model
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.optimizers import Adam
+from sklearn.metrics import classification_report
 import os
 import json
+import numpy as np
+import argparse
 
 # Configuration
 IMG_SIZE = (224, 224)
@@ -15,7 +18,7 @@ DATA_DIR = os.path.join(BASE_DIR, 'data/plantvillage')
 MODEL_SAVE_PATH = os.path.join(BASE_DIR, 'model/crop_disease_model.h5')
 CLASSES_SAVE_PATH = os.path.join(BASE_DIR, 'model/classes.json')
 
-def train_model():
+def train_model(epochs=1):
     # 1. Data Preparation
     datagen = ImageDataGenerator(
         rescale=1./255,
@@ -72,14 +75,26 @@ def train_model():
     model.fit(
         train_generator,
         validation_data=validation_generator,
-        epochs=1
+        epochs=epochs
     )
+    
+    # 4. Evaluation
+    print("Evaluating model...")
+    # Reset validation generator to ensure we evaluate on the whole set
+    validation_generator.reset()
+    Y_pred = model.predict(validation_generator)
+    y_pred = np.argmax(Y_pred, axis=1)
+    print(classification_report(validation_generator.classes, y_pred, target_names=list(validation_generator.class_indices.keys())))
     
     model.save(MODEL_SAVE_PATH)
     print(f"Model saved to {MODEL_SAVE_PATH}")
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Train the crop disease detection model.")
+    parser.add_argument('--epochs', type=int, default=1, help='Number of epochs to train.')
+    args = parser.parse_args()
+
     if os.path.exists(DATA_DIR):
-        train_model()
+        train_model(epochs=args.epochs)
     else:
         print(f"Dataset not found at {DATA_DIR}. Please place the PlantVillage dataset there.")
