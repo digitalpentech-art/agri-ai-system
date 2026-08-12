@@ -1,33 +1,37 @@
 import sys
 import os
-
-# Add agri-ai-system directory to path
-sys.path.append(os.path.join(os.getcwd(), 'agri-ai-system'))
-
-from ml.models.cnn import get_model as get_cnn
-from ml.models.dnn import get_model as get_dnn
+import shutil
+from google.colab import drive
 from ml.models.mobilenetv2 import get_model as get_mobilenetv2
 from ml.training.trainer import train_and_save_model
-from ml.evaluation import evaluate_model, compare_models
+from ml.evaluation import evaluate_model
+from ml.config import RESULTS_DIR
 
 def run_pipeline():
-    print("Initializing Training Pipeline...")
+    # 1. Mount Drive
+    drive.mount('/content/drive')
+    drive_results_dir = '/content/drive/MyDrive/agri_ai_results/'
+    os.makedirs(drive_results_dir, exist_ok=True)
+
+    print("Initializing MobileNetV2 Training...")
     
-    models_to_train = [
-        ('cnn', get_cnn),
-        ('dnn', get_dnn),
-        ('mobilenetv2', get_mobilenetv2)
-    ]
+    # Only training MobileNetV2
+    name = 'mobilenetv2'
+    model_fn = get_mobilenetv2
     
-    results = []
+    # Train and Evaluate
+    model, val_gen = train_and_save_model(name, model_fn)
+    metrics = evaluate_model(model, val_gen, name)
     
-    for name, model_fn in models_to_train:
-        model, val_gen = train_and_save_model(name, model_fn)
-        metrics = evaluate_model(model, val_gen, name)
-        results.append({'model_name': name, 'metrics': metrics})
-        
-    compare_models(results)
-    print("Pipeline complete.")
+    # 2. Persist results to Drive immediately
+    source_model_results = os.path.join(RESULTS_DIR, name)
+    dest_model_results = os.path.join(drive_results_dir, name)
+    
+    if os.path.exists(source_model_results):
+        shutil.copytree(source_model_results, dest_model_results, dirs_exist_ok=True)
+        print(f"Results for {name} saved to Drive.")
+    
+    print("Pipeline complete. Results safely on Drive.")
 
 if __name__ == "__main__":
     run_pipeline()
