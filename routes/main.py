@@ -4,21 +4,19 @@ import os
 from werkzeug.utils import secure_filename
 from factory import db, Config
 from models.models import Diagnosis, Crop
-from models.predictor import DiseasePredictor
+from ml.inference.predictor import ProductionPredictor
 from forms import DiagnosisForm, ClearHistoryForm
 from sqlalchemy import func
 
 main = Blueprint('main', __name__)
 
-# Initialize predictor as None, instantiate lazily
+# Initialize predictor lazily
 _predictor = None
 
 def get_predictor():
     global _predictor
     if _predictor is None:
-        classes_path = os.path.join(os.path.dirname(Config.MODEL_PATH), 'classes.json')
-        if os.path.exists(Config.MODEL_PATH):
-            _predictor = DiseasePredictor(Config.MODEL_PATH, classes_path)
+        _predictor = ProductionPredictor()
     return _predictor
 
 @main.route('/')
@@ -63,7 +61,7 @@ def upload_diagnosis():
     
     if form.validate_on_submit():
         predictor = get_predictor()
-        if not predictor:
+        if not predictor.model:
             flash('Model not found. Please contact administrator.')
             return redirect(url_for('main.upload_diagnosis'))
         
