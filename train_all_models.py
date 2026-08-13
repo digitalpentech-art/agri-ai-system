@@ -32,11 +32,11 @@ def run_pipeline():
     source_model_results = os.path.join(RESULTS_DIR, name)
     dest_model_results = os.path.join(drive_results_dir, name)
     
-    if os.path.exists(source_model_results):
+    if os.path.exists(source_model_results) and source_model_results != dest_model_results:
         shutil.copytree(source_model_results, dest_model_results, dirs_exist_ok=True)
         print(f"Results for {name} saved to Drive.")
     
-    print("Pipeline complete. Results safely on Drive.")
+    print("Pipeline complete. Results safely saved.")
 
 if __name__ == "__main__":
     run_pipeline()
