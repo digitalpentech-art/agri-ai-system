@@ -1,17 +1,22 @@
 import sys
 import os
 import shutil
-from google.colab import drive
 from ml.models.mobilenetv2 import get_model as get_mobilenetv2
 from ml.training.trainer import train_and_save_model
 from ml.evaluation import evaluate_model
 from ml.config import RESULTS_DIR
 
 def run_pipeline():
-    # 1. Mount Drive
-    drive.mount('/content/drive')
-    drive_results_dir = '/content/drive/MyDrive/agri_ai_results/'
-    os.makedirs(drive_results_dir, exist_ok=True)
+    # 1. Mount Drive if in Colab
+    if 'google.colab' in sys.modules:
+        from google.colab import drive
+        drive.mount('/content/drive')
+        drive_results_dir = '/content/drive/MyDrive/agri_ai_results/'
+        os.makedirs(drive_results_dir, exist_ok=True)
+    else:
+        print("Not running in Colab, skipping drive mount.")
+        drive_results_dir = RESULTS_DIR
+        os.makedirs(drive_results_dir, exist_ok=True)
 
     print("Initializing MobileNetV2 Training...")
     
