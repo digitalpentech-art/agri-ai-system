@@ -37,10 +37,11 @@ def get_per_class_metrics(cm):
         fp = np.sum(cm[:, i]) - tp
         tn = total_sum - (tp + fp + fn)
         
-        per_class_metrics[i] = {
-            'TP': tp,
-            'TN': tn,
-            'FP': fp,
-            'FN': fn
+        # Cast numpy types to native Python types
+        per_class_metrics[int(i)] = {
+            'TP': int(tp),
+            'TN': int(tn),
+            'FP': int(fp),
+            'FN': int(fn)
         }
     return per_class_metrics
