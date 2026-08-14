@@ -1,6 +1,8 @@
 import sys
 import os
 import shutil
+from ml.models.cnn import get_model as get_cnn
+from ml.models.dnn import get_model as get_dnn
 from ml.models.mobilenetv2 import get_model as get_mobilenetv2
 from ml.training.trainer import train_and_save_model
 from ml.evaluation import evaluate_model
@@ -18,25 +20,28 @@ def run_pipeline():
         drive_results_dir = RESULTS_DIR
         os.makedirs(drive_results_dir, exist_ok=True)
 
-    print("Initializing MobileNetV2 Training...")
+    models_to_train = [
+        ('cnn', get_cnn),
+        ('dnn', get_dnn),
+        ('mobilenetv2', get_mobilenetv2)
+    ]
+
+    for name, model_fn in models_to_train:
+        print(f"Initializing {name} Training...")
+        
+        # Train and Evaluate
+        model, val_gen = train_and_save_model(name, model_fn)
+        evaluate_model(model, val_gen, name)
+        
+        # 2. Persist results to Drive
+        source_model_results = os.path.join(RESULTS_DIR, name)
+        dest_model_results = os.path.join(drive_results_dir, name)
+        
+        if os.path.exists(source_model_results) and source_model_results != dest_model_results:
+            shutil.copytree(source_model_results, dest_model_results, dirs_exist_ok=True)
+            print(f"Results for {name} saved to Drive.")
     
-    # Only training MobileNetV2
-    name = 'mobilenetv2'
-    model_fn = get_mobilenetv2
-    
-    # Train and Evaluate
-    model, val_gen = train_and_save_model(name, model_fn)
-    metrics = evaluate_model(model, val_gen, name)
-    
-    # 2. Persist results to Drive immediately
-    source_model_results = os.path.join(RESULTS_DIR, name)
-    dest_model_results = os.path.join(drive_results_dir, name)
-    
-    if os.path.exists(source_model_results) and source_model_results != dest_model_results:
-        shutil.copytree(source_model_results, dest_model_results, dirs_exist_ok=True)
-        print(f"Results for {name} saved to Drive.")
-    
-    print("Pipeline complete. Results safely saved.")
+    print("Pipeline complete. All models trained, evaluated, and results saved.")
 
 if __name__ == "__main__":
     run_pipeline()
