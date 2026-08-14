@@ -3,7 +3,7 @@ import json
 import os
 import matplotlib.pyplot as plt
 import csv
-from ml.metrics import calculate_metrics, get_classification_report, get_confusion_matrix
+from ml.metrics import calculate_metrics, get_classification_report, get_confusion_matrix, get_per_class_metrics
 from ml.config import RESULTS_DIR, MODEL_COMPARISON_CSV, BEST_MODEL_JSON
 
 def evaluate_model(model, val_generator, model_name):
@@ -29,8 +29,13 @@ def evaluate_model(model, val_generator, model_name):
     with open(os.path.join(model_results_dir, 'classification_report.json'), 'w') as f:
         json.dump(report, f)
         
-    # Confusion Matrix
+    # Per-Class Numerical Metrics (TP, TN, FP, FN)
     cm = get_confusion_matrix(y_true, y_pred)
+    per_class_metrics = get_per_class_metrics(cm)
+    with open(os.path.join(model_results_dir, 'per_class_metrics.json'), 'w') as f:
+        json.dump(per_class_metrics, f)
+        
+    # Confusion Matrix Plot
     plt.figure(figsize=(10, 8))
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
     plt.title(f'Confusion Matrix - {model_name}')
@@ -39,6 +44,7 @@ def evaluate_model(model, val_generator, model_name):
     plt.close()
     
     print(f"Evaluation complete for {model_name}. Metrics: {metrics}")
+    print(f"Numerical metrics saved to {os.path.join(model_results_dir, 'per_class_metrics.json')}")
     return metrics
 
 def compare_models(results_list):
