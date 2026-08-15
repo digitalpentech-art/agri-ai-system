@@ -77,11 +77,16 @@ def upload_diagnosis():
         # Use the real model prediction and get heatmap
         predicted_disease, confidence, heatmap_filename = predictor.predict(upload_path)
         
+        # Fetch agricultural advice
+        from models.models import Disease
+        disease_info = Disease.query.filter_by(disease_name=predicted_disease).first()
+        
         diagnosis = Diagnosis(user_id=current_user.id, crop_id=form.crop.data, image_path=filename,
                               predicted_disease=predicted_disease, confidence_score=confidence)
         db.session.add(diagnosis)
         db.session.commit()
         
         return render_template('result.html', disease=predicted_disease, 
-                               confidence=confidence, heatmap=heatmap_filename)
+                               confidence=confidence, heatmap=heatmap_filename,
+                               disease_info=disease_info)
     return render_template('upload.html', form=form)

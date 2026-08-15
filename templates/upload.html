@@ -7,7 +7,7 @@
                 <h2 class="card-title h4 mb-0">Upload Crop Image</h2>
             </div>
             <div class="card-body">
-                <form method="POST" enctype="multipart/form-data">
+                <form id="uploadForm" method="POST" enctype="multipart/form-data">
                     {{ form.hidden_tag() }}
                     <div class="form-floating mb-3">
                         {{ form.image(class="form-control", placeholder="Image") }}
@@ -17,10 +17,23 @@
                         {{ form.crop(class="form-select", placeholder="Select Crop") }}
                         {{ form.crop.label }}
                     </div>
-                    {{ form.submit(class="btn btn-primary btn-lg w-100") }}
+                    {{ form.submit(id="submitBtn", class="btn btn-primary btn-lg w-100") }}
                 </form>
+                <div id="loadingSpinner" class="text-center mt-3" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing image...</p>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+    document.getElementById('uploadForm').onsubmit = function() {
+        document.getElementById('submitBtn').disabled = true;
+        document.getElementById('loadingSpinner').style.display = 'block';
+    };
+</script>
 {% endblock %}

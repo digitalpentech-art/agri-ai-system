@@ -11,4 +11,4 @@ class Config:
         
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     UPLOAD_FOLDER = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'uploads')
-    MODEL_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'model/crop_disease_model.h5')
+    MODEL_PATH = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'ml/models/mobilenetv2.h5')

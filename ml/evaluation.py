@@ -35,6 +35,10 @@ def evaluate_model(model, val_generator, model_name):
     with open(os.path.join(model_results_dir, 'per_class_metrics.json'), 'w') as f:
         json.dump(per_class_metrics, f)
         
+    # Raw Confusion Matrix
+    with open(os.path.join(model_results_dir, 'confusion_matrix.json'), 'w') as f:
+        json.dump(cm.tolist(), f)
+        
     # Confusion Matrix Plot
     plt.figure(figsize=(10, 8))
     plt.imshow(cm, interpolation='nearest', cmap=plt.cm.Blues)
@@ -45,6 +49,7 @@ def evaluate_model(model, val_generator, model_name):
     
     print(f"Evaluation complete for {model_name}. Metrics: {metrics}")
     print(f"Numerical metrics saved to {os.path.join(model_results_dir, 'per_class_metrics.json')}")
+    print(f"Raw confusion matrix saved to {os.path.join(model_results_dir, 'confusion_matrix.json')}")
     return metrics
 
 def compare_models(results_list):

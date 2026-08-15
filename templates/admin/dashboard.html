@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Admin Comparative Dashboard</h2>
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Model</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for model, metrics in comparative_data.items() %}
+            <tr>
+                <td>{{ model }}</td>
+                <td>{{ "%.4f"|format(metrics.accuracy) }}</td>
+                <td>{{ "%.4f"|format(metrics.precision) }}</td>
+                <td>{{ "%.4f"|format(metrics.recall) }}</td>
+                <td>{{ "%.4f"|format(metrics.f1_score) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

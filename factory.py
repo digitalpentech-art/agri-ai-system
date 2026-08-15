@@ -29,6 +29,9 @@ def create_app(config_class=Config):
     from routes.auth import auth as auth_blueprint
     app.register_blueprint(auth_blueprint)
     
+    from routes.admin import admin as admin_blueprint
+    app.register_blueprint(admin_blueprint)
+    
     from routes.main import main as main_blueprint
     app.register_blueprint(main_blueprint)
 
