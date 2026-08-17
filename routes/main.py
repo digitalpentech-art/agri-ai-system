@@ -36,12 +36,24 @@ def dashboard():
     # Disease Distribution
     disease_dist = db.session.query(Diagnosis.predicted_disease, func.count(Diagnosis.diagnosis_id)).filter_by(user_id=current_user.id).group_by(Diagnosis.predicted_disease).all()
     
+    # Model Comparison Metrics
+    import json
+    model_metrics = {}
+    for model in ['cnn', 'mobilenetv2']:
+        with open(os.path.join('ml/results', model, 'metrics.json'), 'r') as f:
+            model_metrics[model] = json.load(f)
+            
+    with open(os.path.join('ml/results/dnn/classification_report.json'), 'r') as f:
+        report = json.load(f)
+        model_metrics['dnn'] = {'accuracy': report['accuracy']}
+        
     return render_template('dashboard.html', 
                            total=total_diagnoses, 
                            confidence=round(avg_confidence * 100, 2),
                            disease_dist=disease_dist,
                            recent=diagnoses[-5:][::-1],
-                           clear_form=ClearHistoryForm())
+                           clear_form=ClearHistoryForm(),
+                           model_metrics=model_metrics)
 
 @main.route('/dashboard/clear', methods=['POST'])
 @login_required

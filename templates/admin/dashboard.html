@@ -1,28 +1,128 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container mt-4">
-    <h2>Admin Comparative Dashboard</h2>
-    <table class="table table-striped mt-3">
-        <thead>
-            <tr>
-                <th>Model</th>
-                <th>Accuracy</th>
-                <th>Precision</th>
-                <th>Recall</th>
-                <th>F1-Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for model, metrics in comparative_data.items() %}
-            <tr>
-                <td>{{ model }}</td>
-                <td>{{ "%.4f"|format(metrics.accuracy) }}</td>
-                <td>{{ "%.4f"|format(metrics.precision) }}</td>
-                <td>{{ "%.4f"|format(metrics.recall) }}</td>
-                <td>{{ "%.4f"|format(metrics.f1_score) }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+    <h2>Admin Managerial Dashboard</h2>
+    
+    <ul class="nav nav-tabs mt-4" id="adminTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#models">Models</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#users">Users</button></li>
+        <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#data">Crops/Diseases</button></li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <div class="tab-pane fade show active" id="models">
+            <h3>Model Comparison</h3>
+            <table class="table table-striped">
+                <thead><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1-Score</th></tr></thead>
+                <tbody>
+                    {% for model, metrics in comparative_data.items() %}
+                    <tr>
+                        <td>{{ model }}</td>
+                        <td>{{ "%.4f"|format(metrics.accuracy) }}</td>
+                        <td>{{ "%.4f"|format(metrics.precision) }}</td>
+                        <td>{{ "%.4f"|format(metrics.recall) }}</td>
+                        <td>{{ "%.4f"|format(metrics.f1_score) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="tab-pane fade" id="users">
+            <h3>Manage Users</h3>
+            <table class="table">
+                <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Actions</th></tr></thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.full_name }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.role }}</td>
+                        <td>
+                            {% if user.role != 'admin' %}
+                            <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-danger btn-sm">Delete</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="tab-pane fade" id="data">
+            <h3 class="my-4">Manage Crops & Diseases</h3>
+            
+            <div class="row">
+                <!-- Crops Section -->
+                <div class="col-md-5">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Crops</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ url_for('admin.add_crop') }}" method="POST" class="mb-4">
+                                <div class="input-group">
+                                    <input type="text" name="crop_name" class="form-control" placeholder="New Crop Name" required>
+                                    <button type="submit" class="btn btn-outline-success">Add</button>
+                                </div>
+                            </form>
+                            <div class="list-group">
+                                {% for crop in crops %}
+                                    <div class="list-group-item d-flex justify-content-between align-items-center">
+                                        {{ crop.crop_name }}
+                                        <span class="badge bg-secondary rounded-pill">ID: {{ crop.crop_id }}</span>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Diseases Section -->
+                <div class="col-md-7">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Diseases</h5>
+                        </div>
+                        <div class="card-body">
+                            <form action="{{ url_for('admin.add_disease') }}" method="POST" class="mb-4">
+                                <div class="row g-2">
+                                    <div class="col-md-5">
+                                        <input type="text" name="disease_name" class="form-control" placeholder="New Disease Name" required>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select name="crop_id" class="form-select" required>
+                                            <option value="">Select Crop</option>
+                                            {% for crop in crops %}<option value="{{ crop.crop_id }}">{{ crop.crop_name }}</option>{% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <button type="submit" class="btn btn-success w-100">Add</button>
+                                    </div>
+                                </div>
+                            </form>
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr><th>Disease</th><th>Crop</th></tr>
+                                </thead>
+                                <tbody>
+                                    {% for disease in diseases %}
+                                    <tr>
+                                        <td><strong>{{ disease.disease_name }}</strong></td>
+                                        <td>
+                                            {% for crop in crops %}
+                                                {% if crop.crop_id == disease.crop_id %}{{ crop.crop_name }}{% endif %}
+                                            {% endfor %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

@@ -24,13 +24,21 @@
 </div>
 
 <div class="row">
-    <div class="col-md-8 mb-4">
+    <div class="col-md-6 mb-4">
         <div class="card p-3">
             <h5>Disease Distribution</h5>
             <canvas id="diseaseChart"></canvas>
         </div>
     </div>
-    <div class="col-md-4 mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card p-3">
+            <h5>Model Accuracy Comparison</h5>
+            <canvas id="modelChart"></canvas>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12 mb-4">
         <div class="card p-3">
             <h5>Recent Activity</h5>
             <table class="table table-sm">
@@ -53,16 +61,32 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    const ctx = document.getElementById('diseaseChart').getContext('2d');
+    const diseaseCtx = document.getElementById('diseaseChart').getContext('2d');
     const diseaseData = {
         labels: [{% for d in disease_dist %}"{{ d[0] }}",{% endfor %}],
         datasets: [{
             label: 'Diagnoses',
             data: [{% for d in disease_dist %}{{ d[1] }},{% endfor %}],
-            backgroundColor: ['#2e7d32', '#66bb6a', '#a5d6a7']
+            backgroundColor: ['#2e7d32']
         }]
     };
-    new Chart(ctx, { type: 'bar', data: diseaseData });
+    new Chart(diseaseCtx, { type: 'bar', data: diseaseData });
+
+    const modelCtx = document.getElementById('modelChart').getContext('2d');
+    const modelData = {
+        labels: ['CNN', 'DNN', 'MobileNetV2'],
+        datasets: [{
+            label: 'Accuracy',
+            data: [
+                {{ model_metrics['cnn']['accuracy'] }},
+                {{ model_metrics['dnn']['accuracy'] }},
+                {{ model_metrics['mobilenetv2']['accuracy'] }}
+            ],
+            backgroundColor: ['#4caf50', '#2196f3', '#ff9800']
+        }]
+    };
+    new Chart(modelCtx, { type: 'bar', data: modelData });
 </script>
 {% endblock %}

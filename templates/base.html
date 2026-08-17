@@ -15,6 +15,9 @@
             <a class="navbar-brand" href="{{ url_for('main.index') }}">AgriAI</a>
             <div class="navbar-nav ms-auto">
                 {% if current_user.is_authenticated %}
+                    {% if current_user.role == 'admin' %}
+                        <a class="nav-link text-warning" href="{{ url_for('admin.admin_dashboard') }}">Admin Panel</a>
+                    {% endif %}
                     <a class="nav-link" href="{{ url_for('main.dashboard') }}">Dashboard</a>
                     <a class="nav-link" href="{{ url_for('main.upload_diagnosis') }}">Upload</a>
                     <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
